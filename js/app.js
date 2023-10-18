@@ -1,3 +1,44 @@
+class App {
+	constructor() {
+		this._tracker = new CalorieTracker();
+
+		document.getElementById('meal-form').addEventListener('submit', this._newMeal.bind(this));
+		document.getElementById('workout-form').addEventListener('submit', this._newWorkOut.bind(this));
+	}
+
+	_newMeal(e) {
+		e.preventDefault();
+
+		const name = document.getElementById('meal-name');
+		const calories = document.getElementById('meal-calories');
+
+		if (name.value === '' || calories.value === '') {
+			alert('Please fill all fields');
+			return;
+		}
+
+		const meal = new Meal(name.value, calories.value);
+
+		this._tracker.addMeal(meal);
+	}
+
+	_newWorkOut(e) {
+		e.preventDefault();
+
+		const name = document.getElementById('workout-name');
+		const calories = document.getElementById('workout-calories');
+
+		if (name.value === '' || calories.value === '') {
+			alert('Please fill all fields');
+			return;
+		}
+
+		const workout = new Workout(name.value, calories.value);
+
+		this._tracker.addWorkout(workout);
+	}
+}
+
 class CalorieTracker {
 	constructor() {
 		this._calorieLimit = 1000;
@@ -15,7 +56,7 @@ class CalorieTracker {
 
 	addMeal(meal) {
 		this._meals.push(meal);
-		this._totalCalories += meal.calories;
+		this._totalCalories += +meal.calories;
 		this._render();
 	}
 
@@ -38,14 +79,14 @@ class CalorieTracker {
 	_displayCaloriesConsumed() {
 		const caloriesConsumedEl = document.getElementById('calories-consumed');
 
-		const consumed = this._meals.reduce((total, meal) => total + meal.calories, 0);
+		const consumed = this._meals.reduce((total, meal) => total + +meal.calories, 0);
 		caloriesConsumedEl.innerHTML = consumed;
 	}
 
 	_displayCaloriesBurned() {
 		const caloriesBurnedEl = document.getElementById('calories-burned');
 
-		const burned = this._workouts.reduce((total, workout) => total + workout.calories, 0);
+		const burned = this._workouts.reduce((total, workout) => total + +workout.calories, 0);
 		caloriesBurnedEl.innerHTML = burned;
 	}
 
@@ -66,6 +107,10 @@ class CalorieTracker {
 		const percentage = (this._totalCalories / this._calorieLimit) * 100;
 		const width = Math.min(percentage, 100);
 		calorieProgressEl.style.width = `${width}%`;
+
+		if (percentage > 100) {
+			calorieProgressEl.classList.add('bg-danger');
+		}
 	}
 
 	_render() {
@@ -93,9 +138,4 @@ class Workout {
 	}
 }
 
-const tracker = new CalorieTracker();
-const breakfast = new Meal('Breakfast', 40);
-tracker.addMeal(breakfast);
-console.log(breakfast);
-const running = new Workout('Running', 200);
-tracker.addWorkout(running);
+const app = new App();
